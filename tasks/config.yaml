@@ -1,0 +1,39 @@
+---
+- name: Ensure the web content directory exists
+  ansible.builtin.file:
+    path: /usr/share/nginx/html/enterprise-deploy
+    state: directory
+    owner: nginx
+    group: nginx
+    mode: '0755'
+  when: "'web' in group_names"
+
+- name: Deploy the dynamic status page from the Jinja2 template
+  ansible.builtin.template:
+    src: templates/index.html.j2
+    dest: /usr/share/nginx/html/enterprise-deploy/index.html
+    owner: nginx
+    group: nginx
+    mode: '0644'
+  when: "'web' in group_names"
+  notify: Restart nginx
+
+- name: Hide the Nginx version banner
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '^\s*server_tokens'
+    line: '    server_tokens off;'
+    insertafter: 'http {'
+    state: present
+  when: "'web' in group_names"
+  notify: Restart nginx
+
+- name: Let MariaDB accept connections from the web tier
+  ansible.builtin.lineinfile:
+    path: /etc/my.cnf.d/mariadb-server.cnf
+    regexp: '^bind-address'
+    line: 'bind-address = 0.0.0.0'
+    insertafter: '\[mysqld\]'
+    state: present
+  when: "'db' in group_names"
+  notify: Restart mariadb

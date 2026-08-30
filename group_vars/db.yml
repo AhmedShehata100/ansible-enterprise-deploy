@@ -1,0 +1,6 @@
+---
+db_packages:
+  - mariadb-server
+
+firewall_ports:
+  - 3306/tcp

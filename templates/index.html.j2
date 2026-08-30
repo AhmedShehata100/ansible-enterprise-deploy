@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ inventory_hostname }} - Enterprise Deploy</title>
+</head>
+<body>
+    <h1>Multi-Tier Web &amp; DB Automation Deployment</h1>
+    <p>Rendered by Ansible using live facts gathered from this host.</p>
+    <ul>
+        <li><strong>Hostname:</strong> {{ ansible_hostname }}</li>
+        <li><strong>IP Address:</strong> {{ ansible_default_ipv4.address | default('N/A') }}</li>
+        <li><strong>OS:</strong> {{ ansible_distribution }} {{ ansible_distribution_version }}</li>
+        <li><strong>vCPUs:</strong> {{ ansible_processor_vcpus }}</li>
+        <li><strong>RAM:</strong> {{ (ansible_memtotal_mb / 1024) | round(2) }} GB</li>
+        <li><strong>Calculated Nginx worker_processes:</strong> {{ nginx_worker_processes | default('N/A') }}</li>
+    </ul>
+</body>
+</html>

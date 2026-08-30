@@ -1,0 +1,18 @@
+---
+- name: Show a summary of the facts collected from this host
+  ansible.builtin.debug:
+    msg: >-
+      {{ inventory_hostname }} ({{ ansible_default_ipv4.address | default('N/A') }})
+      -> {{ ansible_processor_vcpus }} vCPUs,
+      {{ (ansible_memtotal_mb / 1024) | round(2) }} GB RAM,
+      {{ ansible_distribution }} {{ ansible_distribution_version }}
+
+- name: Size Nginx worker_processes from the CPU count (web only)
+  ansible.builtin.set_fact:
+    nginx_worker_processes: "{{ ansible_processor_vcpus }}"
+  when: "'web' in group_names"
+
+- name: Size the InnoDB buffer pool from available RAM (db only)
+  ansible.builtin.set_fact:
+    db_buffer_pool_size_mb: "{{ (ansible_memtotal_mb * 0.5) | round | int }}"
+  when: "'db' in group_names"

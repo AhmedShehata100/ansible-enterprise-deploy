@@ -1,0 +1,22 @@
+---
+- name: Install role-specific packages for this host's group
+  ansible.builtin.dnf:
+    name: "{{ (web_packages | default([])) + (db_packages | default([])) }}"
+    state: present
+
+- name: Stop and disable httpd so it doesn't hold port 80 for nginx (web only)
+  ansible.builtin.service:
+    name: httpd
+    state: stopped
+    enabled: no
+  when: "'web' in group_names"
+  ignore_errors: true
+
+- name: Ensure the group's service is started and enabled
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop: >-
+    {{ (['nginx'] if 'web' in group_names else [])
+       + (['mariadb'] if 'db' in group_names else []) }}
